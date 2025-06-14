@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Healthcare Diagnosis System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray-dark: #343a40;
+            --surface: #ffffff;
+            --bg-gradient: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+        }
+        
+        body {
+            background-color: #f0f2f5;
+            color: var(--dark);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: var(--bg-gradient);
+            color: white;
+            padding: 20px 0;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            font-weight: 700;
+            margin: 0;
+            text-align: center;
+        }
+        
+        .header p {
+            opacity: 0.8;
+            margin: 10px 0 0;
+            text-align: center;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.05);
+            height: 100%;
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            background-color: var(--primary);
+            color: white;
+            font-weight: 600;
+            padding: 15px 20px;
+            border-bottom: none;
+        }
+        
+        .card-body {
+            padding: 25px;
+        }
+        
+        .model-option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid #e9ecef;
+        }
+        
+        .model-option:hover {
+            border-color: var(--primary);
+        }
+        
+        .model-option.selected {
+            border-color: var(--primary);
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+        
+        .model-icon {
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: white;
+        }
+        
+        .model-info {
+            flex: 1;
+        }
+        
+        .model-name {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+        
+        .model-desc {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+        
+        .upload-area {
+            border: 2px dashed #ced4da;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: all 0.2s ease;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary);
+        }
+        
+        .upload-area.active {
+            border-color: var(--primary);
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        
+        .file-info {
+            display: none;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: #e9ecef;
+            margin-top: 15px;
+        }
+        
+        .btn-primary {
+            background: var(--bg-gradient);
+            border: none;
+            padding: 12px 25px;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        
+        .spinner-container {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            color: var(--primary);
+        }
+        
+        .results-container {
+            display: none;
+        }
+        
+        .results-image-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 300px;
+            min-height: 300px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .results-image {
+            max-height: 100%;
+            max-width: 100%;
+            object-fit: contain;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .prediction-result {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-left: 10px;
+        }
+        
+        .confidence-bar {
+            height: 25px;
+            border-radius: 5px;
+            background: var(--bg-gradient);
+        }
+        
+        .confidence-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .confidence-item:last-child {
+            border-bottom: none;
+        }
+        
+        .confidence-label {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .confidence-value {
+            position: absolute;
+            right: 15px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .plot-container {
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .section-divider {
+            border-top: 1px solid #eee;
+            margin: 20px 0;
+            padding-top: 10px;
+        }
+        
+        @media (max-width: 992px) {
+            .sidebar-col {
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <h1><i class="fas fa-heartbeat me-2"></i> Smart Healthcare Diagnosis System</h1>
+            <p>Advanced AI-powered medical image analysis</p>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-4 sidebar-col">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-brain me-2"></i> Select Model & Upload Image
+                    </div>
+                    <div class="card-body">
+                        <!-- Model Selection Section -->
+                        <h5 class="mb-3">Choose Diagnostic Model:</h5>
+                        <div class="model-option selected" id="mriOption" data-model="mri">
+                            <div class="model-icon">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <div class="model-info">
+                                <div class="model-name">MRI Model</div>
+                                <div class="model-desc">Analyzes brain MRI scans for various conditions</div>
+                            </div>
+                        </div>
+                        
+                        <div class="model-option" id="xrayOption" data-model="xray">
+                            <div class="model-icon">
+                                <i class="fas fa-lungs"></i>
+                            </div>
+                            <div class="model-info">
+                                <div class="model-name">Chest X-ray Model</div>
+                                <div class="model-desc">Detects pneumonia and other respiratory conditions</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Divider -->
+                        <div class="section-divider"></div>
+                        
+                        <!-- Upload Section -->
+                        <h5 class="mb-3">Upload Image:</h5>
+                        <form id="uploadForm" enctype="multipart/form-data">
+                            <input type="hidden" name="model_type" id="modelType" value="mri">
+                            
+                            <div class="upload-area" id="dropArea">
+                                <div class="upload-icon">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                </div>
+                                <h5>Drag & Drop or Click to Upload</h5>
+                                <p class="text-muted">Supported formats: JPG, PNG, JPEG</p>
+                                <input type="file" id="imageUpload" name="file" accept=".png,.jpg,.jpeg" class="d-none">
+                            </div>
+                            
+                            <div class="file-info" id="fileInfo">
+                                <i class="fas fa-file-image me-2"></i>
+                                <span id="fileName">No file selected</span>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary w-100" id="analyzeBtn">
+                                <i class="fas fa-microscope me-2"></i> Analyze Image
+                            </button>
+                        </form>
+                        
+                        <div class="spinner-container" id="spinner">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-3">Analyzing your image...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-8">
+                <div class="results-container" id="resultsContainer">
+                    <div class="row mb-4">
+                        <div class="col-md-5">
+                            <div class="card">
+                                <div class="card-header">
+                                    <i class="fas fa-image me-2"></i> Uploaded Image
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="results-image-container">
+                                        <img id="uploadedImage" class="results-image" alt="Uploaded Image">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-7">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <i class="fas fa-diagnoses me-2"></i> Diagnosis Result
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-4">
+                                        <h5>Predicted Condition:</h5>
+                                        <div class="d-flex align-items-center mt-2">
+                                            <i class="fas fa-check-circle text-success fs-4"></i>
+                                            <span id="predictedClass" class="prediction-result ms-2"></span>
+                                        </div>
+                                    </div>
+                                    
+                                    <h5>Top Confidence Scores:</h5>
+                                    <div id="topScores" class="mt-3">
+                                        <!-- Top confidence scores will be populated here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-chart-bar me-2"></i> Confidence Analysis
+                        </div>
+                        <div class="card-body">
+                            <div class="plot-container">
+                                <img id="confidencePlot" class="img-fluid" alt="Confidence Score Distribution">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Model selection
+            $('.model-option').on('click', function() {
+                $('.model-option').removeClass('selected');
+                $(this).addClass('selected');
+                
+                const modelType = $(this).data('model');
+                $('#modelType').val(modelType);
+                
+                // Reset upload when model changes
+                $('#imageUpload').val('');
+                $('#fileInfo').hide();
+                $('#resultsContainer').hide();
+            });
+            
+            // Fix for click to upload - use direct event handler
+            document.getElementById('dropArea').addEventListener('click', function() {
+                document.getElementById('imageUpload').click();
+            });
+            
+            // File drag and drop
+            const dropArea = document.getElementById('dropArea');
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                dropArea.classList.add('active');
+            }
+            
+            function unhighlight() {
+                dropArea.classList.remove('active');
+            }
+            
+            dropArea.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if (files.length > 0) {
+                    $('#imageUpload')[0].files = files;
+                    updateFileInfo(files[0].name);
+                }
+            }
+            
+            // File selection change
+            $('#imageUpload').on('change', function() {
+                const fileInput = $(this)[0];
+                if (fileInput.files.length > 0) {
+                    updateFileInfo(fileInput.files[0].name);
+                }
+            });
+            
+            function updateFileInfo(fileName) {
+                $('#fileName').text(fileName);
+                $('#fileInfo').show();
+            }
+            
+            // Form submission
+            $('#uploadForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                const fileInput = $('#imageUpload')[0];
+                if (fileInput.files.length === 0) {
+                    alert('Please select an image to upload');
+                    return;
+                }
+                
+                const file = fileInput.files[0];
+                const modelType = $('#modelType').val();
+                
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('model_type', modelType);
+                
+                // Show spinner, hide results
+                $('#spinner').show();
+                $('#analyzeBtn').prop('disabled', true);
+                $('#resultsContainer').hide();
+                
+                $.ajax({
+                    url: '/predict',
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        $('#spinner').hide();
+                        $('#analyzeBtn').prop('disabled', false);
+                        
+                        if (response.error) {
+                            alert('Error: ' + response.error);
+                            return;
+                        }
+                        
+                        // Update predicted class
+                        $('#predictedClass').text(response.predicted_class);
+                        
+                        // Update top scores
+                        const topScores = $('#topScores');
+                        topScores.empty();
+                        
+                        const entries = Object.entries(response.confidence_data)
+                            .sort((a, b) => b[1] - a[1]);
+                        
+                        // Add top 3 to the top scores section
+                        entries.slice(0, 3).forEach(([label, confidence], index) => {
+                            const percent = (confidence * 100).toFixed(1);
+                            topScores.append(`
+                                <div class="confidence-item">
+                                    <div class="confidence-label d-flex justify-content-between">
+                                        <span>${label}</span>
+                                        <span>${percent}%</span>
+                                    </div>
+                                    <div class="progress" style="height: 10px;">
+                                        <div class="progress-bar bg-primary" role="progressbar" 
+                                             style="width: ${percent}%;" aria-valuenow="${percent}" 
+                                             aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                            `);
+                        });
+                        
+                        // Update images
+                        $('#uploadedImage').attr('src', 'data:image/jpeg;base64,' + response.image_base64);
+                        $('#confidencePlot').attr('src', 'data:image/png;base64,' + response.plot_base64);
+                        
+                        // Show results
+                        $('#resultsContainer').fadeIn(500);
+                        
+                        // Scroll to results
+                        $('html, body').animate({
+                            scrollTop: $("#resultsContainer").offset().top - 20
+                        }, 500);
+                    },
+                    error: function(xhr, status, error) {
+                        $('#spinner').hide();
+                        $('#analyzeBtn').prop('disabled', false);
+                        alert('Error: ' + error);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
